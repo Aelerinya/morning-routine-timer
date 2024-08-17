@@ -210,7 +210,7 @@ const RoutineEditor = ({
       </div>
       <Button
         onClick={saveChanges}
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+        className="w-full bg-slate-500 hover:bg-slate-600 text-white"
       >
         Save Changes
       </Button>
@@ -269,7 +269,7 @@ const TimerContent = ({
       <div className="flex justify-between space-x-2">
         <Button
           onClick={() => (isRunning ? pauseTimer() : startTimer())}
-          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
+          className="flex-1 bg-slate-500 hover:bg-slate-600 text-white"
           variant="default"
         >
           {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
@@ -284,7 +284,7 @@ const TimerContent = ({
           {currentStep === steps.length - 1 ? "End" : "Next Step"}
         </Button>
       </div>
-      <Separator className="bg-blue-400" />
+      <Separator className="bg-slate-400" />
       <div className="flex items-center justify-between text-sm">
         <span>Total Time: {formatTime(totalTime)}</span>
         <span className="text-red-300">
@@ -356,7 +356,7 @@ const MorningRoutineTimer = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-2xl">
         <Tabs defaultValue="timer" className="space-y-4">
-          <div className="bg-blue-700 rounded-t-lg shadow-xl overflow-hidden">
+          <div className="bg-slate-700 rounded-t-lg shadow-xl overflow-hidden">
             <Card className="bg-transparent border-none text-white">
               <CardHeader>
                 <CardTitle className="text-xl font-bold">
@@ -365,13 +365,13 @@ const MorningRoutineTimer = () => {
               </CardHeader>
               <CardContent>
                 <div className="mb-6 space-y-2">
-                  <div className="h-3 bg-blue-900 rounded-full overflow-hidden">
+                  <div className="h-3 bg-slate-900 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-white transition-all duration-300 ease-in-out"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <div className="text-xs text-right text-blue-200">
+                  <div className="text-xs text-right text-slate-200">
                     Progress: {Math.round(progress)}%
                   </div>
                 </div>
@@ -420,16 +420,16 @@ const MorningRoutineTimer = () => {
               </CardContent>
             </Card>
           </div>
-          <TabsList className="grid w-full grid-cols-2 bg-blue-600 rounded-b-lg">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-600 rounded-b-lg">
             <TabsTrigger
               value="timer"
-              className="data-[state=active]:bg-blue-700"
+              className="data-[state=active]:bg-slate-700"
             >
               Timer
             </TabsTrigger>
             <TabsTrigger
               value="editor"
-              className="data-[state=active]:bg-blue-700"
+              className="data-[state=active]:bg-slate-700"
             >
               Edit Routine
             </TabsTrigger>
