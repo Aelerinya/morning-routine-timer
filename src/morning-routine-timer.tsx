@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -57,7 +57,7 @@ const useTimer = (initialTime: number, onTimerEnd: () => void) => {
     isOvertime,
     startTimer,
     pauseTimer,
-    resetTimer
+    resetTimer,
   };
 };
 
@@ -68,8 +68,13 @@ const useSteps = (initialSteps: Step[]) => {
   const [progress, setProgress] = useState(0);
 
   const calculateProgress = useCallback(() => {
-    const totalDuration = steps.reduce((sum, step) => sum + step.duration * 60, 0);
-    const completedDuration = steps.slice(0, currentStep).reduce((sum, step) => sum + step.duration * 60, 0);
+    const totalDuration = steps.reduce(
+      (sum, step) => sum + step.duration * 60,
+      0
+    );
+    const completedDuration = steps
+      .slice(0, currentStep)
+      .reduce((sum, step) => sum + step.duration * 60, 0);
     const currentProgress = (completedDuration / totalDuration) * 100;
     return Math.min(currentProgress, 100);
   }, [steps, currentStep]);
@@ -117,7 +122,7 @@ const useSound = () => {
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    oscillator.type = 'sine';
+    oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
     gainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + 0.01);
@@ -129,21 +134,31 @@ const useSound = () => {
   return { playSound };
 };
 
-const RoutineEditor = ({ steps, updateSteps }: { steps: Step[], updateSteps: (newSteps: Step[]) => void }) => {
+const RoutineEditor = ({
+  steps,
+  updateSteps,
+}: {
+  steps: Step[];
+  updateSteps: (newSteps: Step[]) => void;
+}) => {
   const [editedSteps, setEditedSteps] = useState(steps);
 
-  const handleStepChange = (index: number, field: keyof Step, value: string) => {
+  const handleStepChange = (
+    index: number,
+    field: keyof Step,
+    value: string
+  ) => {
     const newSteps = [...editedSteps];
-    if (field === 'name') {
+    if (field === "name") {
       newSteps[index].name = value;
-    } else if (field === 'duration') {
+    } else if (field === "duration") {
       newSteps[index].duration = parseInt(value) || 0;
     }
     setEditedSteps(newSteps);
   };
 
   const addStep = () => {
-    setEditedSteps([...editedSteps, { name: 'New Step', duration: 5 }]);
+    setEditedSteps([...editedSteps, { name: "New Step", duration: 5 }]);
   };
 
   const removeStep = (index: number) => {
@@ -162,26 +177,37 @@ const RoutineEditor = ({ steps, updateSteps }: { steps: Step[], updateSteps: (ne
           <div key={index} className="flex items-center space-x-2">
             <Input
               value={step.name}
-              onChange={(e) => handleStepChange(index, 'name', e.target.value)}
+              onChange={(e) => handleStepChange(index, "name", e.target.value)}
               className="flex-grow"
             />
             <Input
               type="number"
               value={step.duration}
-              onChange={(e) => handleStepChange(index, 'duration', e.target.value)}
+              onChange={(e) =>
+                handleStepChange(index, "duration", e.target.value)
+              }
               className="w-20"
             />
-            <Button onClick={() => removeStep(index)} className="bg-red-500 hover:bg-red-600 text-white">
+            <Button
+              onClick={() => removeStep(index)}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
               <Minus />
             </Button>
           </div>
         ))}
-        <Button onClick={addStep} className="bg-green-500 hover:bg-green-600 text-white">
+        <Button
+          onClick={addStep}
+          className="bg-green-500 hover:bg-green-600 text-white"
+        >
           <Plus className="mr-2" />
           Add Step
         </Button>
       </div>
-      <Button onClick={saveChanges} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
+      <Button
+        onClick={saveChanges}
+        className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+      >
         Save Changes
       </Button>
     </div>
@@ -201,46 +227,65 @@ interface TimerContentProps {
   startNextStep: () => void;
 }
 
-const TimerContent = ({ steps, currentStep, timeLeft, isRunning, totalTime, totalOvertime, isOvertime, startTimer, pauseTimer, startNextStep }: TimerContentProps) => {
+const TimerContent = ({
+  steps,
+  currentStep,
+  timeLeft,
+  isRunning,
+  totalTime,
+  totalOvertime,
+  isOvertime,
+  startTimer,
+  pauseTimer,
+  startNextStep,
+}: TimerContentProps) => {
   const formatTime = (seconds: number) => {
     const absSeconds = Math.abs(seconds);
     const mins = Math.floor(absSeconds / 60);
     const secs = absSeconds % 60;
-    const sign = seconds < 0 ? '-' : '';
-    return `${sign}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const sign = seconds < 0 ? "-" : "";
+    return `${sign}${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   return (
     <div className="space-y-4">
       <div className="text-center">
         <h3 className="text-lg font-bold">{steps[currentStep].name}</h3>
-        <p className={`text-3xl font-bold ${isOvertime ? 'text-red-300' : 'text-white'}`}>
+        <p
+          className={`text-3xl font-bold ${
+            isOvertime ? "text-red-300" : "text-white"
+          }`}
+        >
           <Clock className="inline-block mr-2" />
           {formatTime(timeLeft)}
         </p>
       </div>
       <div className="flex justify-between space-x-2">
-        <Button 
-          onClick={() => isRunning ? pauseTimer() : startTimer()} 
+        <Button
+          onClick={() => (isRunning ? pauseTimer() : startTimer())}
           className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
           variant="default"
         >
           {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
-          {isRunning ? 'Pause' : 'Start'}
+          {isRunning ? "Pause" : "Start"}
         </Button>
-        <Button 
-          onClick={startNextStep} 
+        <Button
+          onClick={startNextStep}
           className="flex-1 bg-green-500 hover:bg-green-600 text-white"
           variant="default"
         >
           <SkipForward className="mr-2" />
-          {currentStep === steps.length - 1 ? 'End' : 'Next Step'}
+          {currentStep === steps.length - 1 ? "End" : "Next Step"}
         </Button>
       </div>
       <Separator className="bg-blue-400" />
       <div className="flex items-center justify-between text-sm">
         <span>Total Time: {formatTime(totalTime)}</span>
-        <span className="text-red-300">Overtime: {formatTime(totalOvertime)}</span>
+        <span className="text-red-300">
+          Overtime: {formatTime(totalOvertime)}
+        </span>
       </div>
     </div>
   );
@@ -248,13 +293,13 @@ const TimerContent = ({ steps, currentStep, timeLeft, isRunning, totalTime, tota
 
 const MorningRoutineTimer = () => {
   const initialSteps: Step[] = [
-    { name: 'Log sleep stats', duration: 5 },
-    { name: 'Look at calendar', duration: 1 },
-    { name: 'Look at todo list', duration: 2 },
-    { name: 'Review last day on Intend', duration: 12 },
-    { name: 'Set intention for the day on Intend', duration: 4 },
-    { name: 'Write down day priorities in daily note', duration: 1 },
-    { name: 'Fill out Sunsama', duration: 15 }
+    { name: "Log sleep stats", duration: 5 },
+    { name: "Look at calendar", duration: 1 },
+    { name: "Look at todo list", duration: 2 },
+    { name: "Review last day on Intend", duration: 12 },
+    { name: "Set intention for the day on Intend", duration: 4 },
+    { name: "Write down day priorities in daily note", duration: 1 },
+    { name: "Fill out Sunsama", duration: 15 },
   ];
 
   const {
@@ -281,7 +326,7 @@ const MorningRoutineTimer = () => {
     isOvertime,
     startTimer,
     pauseTimer,
-    resetTimer
+    resetTimer,
   } = useTimer(getCurrentStepDuration(), onTimerEnd);
 
   const startNextStep = () => {
@@ -293,12 +338,14 @@ const MorningRoutineTimer = () => {
     }
   };
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number) => {
     const absSeconds = Math.abs(seconds);
     const mins = Math.floor(absSeconds / 60);
     const secs = absSeconds % 60;
-    const sign = seconds < 0 ? '-' : '';
-    return `${sign}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    const sign = seconds < 0 ? "-" : "";
+    return `${sign}${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   return (
@@ -308,12 +355,14 @@ const MorningRoutineTimer = () => {
           <div className="bg-blue-700 rounded-t-lg shadow-xl overflow-hidden">
             <Card className="bg-transparent border-none text-white">
               <CardHeader>
-                <CardTitle className="text-xl font-bold">Customizable Morning Routine Timer</CardTitle>
+                <CardTitle className="text-xl font-bold">
+                  Customizable Morning Routine Timer
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="mb-6 space-y-2">
                   <div className="h-3 bg-blue-900 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-white transition-all duration-300 ease-in-out"
                       style={{ width: `${progress}%` }}
                     />
@@ -325,11 +374,25 @@ const MorningRoutineTimer = () => {
                 <TabsContent value="timer">
                   {isRoutineFinished ? (
                     <div className="text-center">
-                      <h2 className="text-2xl font-bold mb-4">Congratulations!</h2>
-                      <p className="text-lg mb-4">You've completed your morning routine.</p>
+                      <h2 className="text-2xl font-bold mb-4">
+                        Congratulations!
+                      </h2>
+                      <p className="text-lg mb-4">
+                        You've completed your morning routine.
+                      </p>
                       <div className="space-y-2">
-                        <p>Total Time: <span className="font-bold">{formatTime(totalTime)}</span></p>
-                        <p className="text-red-300">Overtime: <span className="font-bold">{formatTime(totalOvertime)}</span></p>
+                        <p>
+                          Total Time:{" "}
+                          <span className="font-bold">
+                            {formatTime(totalTime)}
+                          </span>
+                        </p>
+                        <p className="text-red-300">
+                          Overtime:{" "}
+                          <span className="font-bold">
+                            {formatTime(totalOvertime)}
+                          </span>
+                        </p>
                       </div>
                     </div>
                   ) : (
@@ -354,8 +417,18 @@ const MorningRoutineTimer = () => {
             </Card>
           </div>
           <TabsList className="grid w-full grid-cols-2 bg-blue-600 rounded-b-lg">
-            <TabsTrigger value="timer" className="data-[state=active]:bg-blue-700">Timer</TabsTrigger>
-            <TabsTrigger value="editor" className="data-[state=active]:bg-blue-700">Edit Routine</TabsTrigger>
+            <TabsTrigger
+              value="timer"
+              className="data-[state=active]:bg-blue-700"
+            >
+              Timer
+            </TabsTrigger>
+            <TabsTrigger
+              value="editor"
+              className="data-[state=active]:bg-blue-700"
+            >
+              Edit Routine
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
