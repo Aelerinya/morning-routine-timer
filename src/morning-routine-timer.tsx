@@ -67,22 +67,26 @@ const useSteps = (initialSteps: Step[]) => {
   const [isRoutineFinished, setIsRoutineFinished] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const calculateProgress = useCallback(() => {
+  const calculateProgress = useCallback((stepIndex: number) => {
     const totalDuration = steps.reduce(
       (sum, step) => sum + step.duration * 60,
       0
     );
     const completedDuration = steps
-      .slice(0, currentStep)
+      .slice(0, stepIndex)
       .reduce((sum, step) => sum + step.duration * 60, 0);
     const currentProgress = (completedDuration / totalDuration) * 100;
     return Math.min(currentProgress, 100);
-  }, [steps, currentStep]);
+  }, [steps]);
 
   const goToNextStep = useCallback(() => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep((prevStep) => prevStep + 1);
-      setProgress(calculateProgress());
+      setCurrentStep((prevStep) => {
+        const nextStep = prevStep + 1;
+        const newProgress = calculateProgress(nextStep);
+        setProgress(newProgress);
+        return nextStep;
+      });
       return steps[currentStep + 1].duration * 60;
     } else {
       setIsRoutineFinished(true);
