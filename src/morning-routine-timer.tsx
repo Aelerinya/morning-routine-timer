@@ -9,6 +9,7 @@ import { Clock, Play, Pause, SkipForward, Plus, Minus } from "lucide-react";
 interface Step {
   name: string;
   duration: number;
+  url?: string; // New optional property for the URL
 }
 
 const useTimer = (initialTime: number, onTimerEnd: () => void) => {
@@ -67,17 +68,20 @@ const useSteps = (initialSteps: Step[]) => {
   const [isRoutineFinished, setIsRoutineFinished] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const calculateProgress = useCallback((stepIndex: number) => {
-    const totalDuration = steps.reduce(
-      (sum, step) => sum + step.duration * 60,
-      0
-    );
-    const completedDuration = steps
-      .slice(0, stepIndex)
-      .reduce((sum, step) => sum + step.duration * 60, 0);
-    const currentProgress = (completedDuration / totalDuration) * 100;
-    return Math.min(currentProgress, 100);
-  }, [steps]);
+  const calculateProgress = useCallback(
+    (stepIndex: number) => {
+      const totalDuration = steps.reduce(
+        (sum, step) => sum + step.duration * 60,
+        0
+      );
+      const completedDuration = steps
+        .slice(0, stepIndex)
+        .reduce((sum, step) => sum + step.duration * 60, 0);
+      const currentProgress = (completedDuration / totalDuration) * 100;
+      return Math.min(currentProgress, 100);
+    },
+    [steps]
+  );
 
   const goToNextStep = useCallback(() => {
     if (currentStep < steps.length - 1) {
@@ -157,12 +161,17 @@ const RoutineEditor = ({
       newSteps[index].name = value;
     } else if (field === "duration") {
       newSteps[index].duration = parseInt(value) || 0;
+    } else if (field === "url") {
+      newSteps[index].url = value;
     }
     setEditedSteps(newSteps);
   };
 
   const addStep = () => {
-    setEditedSteps([...editedSteps, { name: "New Step", duration: 5 }]);
+    setEditedSteps([
+      ...editedSteps,
+      { name: "New Step", duration: 5, url: "" },
+    ]);
   };
 
   const removeStep = (index: number) => {
@@ -191,6 +200,12 @@ const RoutineEditor = ({
                 handleStepChange(index, "duration", e.target.value)
               }
               className="w-20"
+            />
+            <Input
+              value={step.url || ""}
+              onChange={(e) => handleStepChange(index, "url", e.target.value)}
+              placeholder="URL (optional)"
+              className="flex-grow"
             />
             <Button
               onClick={() => removeStep(index)}
@@ -256,7 +271,19 @@ const TimerContent = ({
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h3 className="text-lg font-bold">{steps[currentStep].name}</h3>
+        {steps[currentStep].url ? (
+          <h3 className="text-xl font-bold underline">
+            <a
+              href={steps[currentStep].url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {steps[currentStep].name}
+            </a>
+          </h3>
+        ) : (
+          <h3 className="text-xl font-bold">{steps[currentStep].name}</h3>
+        )}
         <p
           className={`text-3xl font-bold ${
             isOvertime ? "text-red-300" : "text-white"
@@ -297,13 +324,46 @@ const TimerContent = ({
 
 const MorningRoutineTimer = () => {
   const initialSteps: Step[] = [
-    { name: "Log sleep stats", duration: 5 },
-    { name: "Look at calendar", duration: 1 },
-    { name: "Look at todo list", duration: 2 },
-    { name: "Review last day on Intend", duration: 12 },
-    { name: "Set intention for the day on Intend", duration: 4 },
-    { name: "Write down day priorities in daily note", duration: 1 },
-    { name: "Fill out Sunsama", duration: 15 },
+    {
+      name: "Read Mnestic",
+      duration: 1,
+      url: "obsidian://open?vault=Chaos&file=Resources%2FMnestic",
+    },
+    { name: "Sunsama init", duration: 2 },
+    {
+      name: "Log sleep stats TT",
+      duration: 3,
+      url: "https://appx.tenacious-tracker.com/tracking",
+    },
+    {
+      name: "Log sleep stats Exist",
+      duration: 3,
+      url: "https://exist.io/review/",
+    },
+    {
+      name: "Look at calendar",
+      duration: 1,
+      url: "https://calendar.google.com/calendar/u/0/r",
+    },
+    {
+      name: "Look at todo list",
+      duration: 2,
+      url: "https://app.todoist.com/app/today",
+    },
+    {
+      name: "Review last day on Intend",
+      duration: 10,
+      url: "https://intend.do/aelerinya/now",
+    },
+    {
+      name: "Set intention for the day on Intend",
+      duration: 4,
+      url: "https://intend.do/aelerinya/today",
+    },
+    {
+      name: "Sunsama finish plan",
+      duration: 5,
+    },
   ];
 
   const {
@@ -333,14 +393,19 @@ const MorningRoutineTimer = () => {
     resetTimer,
   } = useTimer(getCurrentStepDuration(), onTimerEnd);
 
-  const startNextStep = () => {
+  const startNextStep = useCallback(() => {
     const nextStepDuration = goToNextStep();
     if (nextStepDuration !== null) {
       resetTimer(nextStepDuration);
+      // Open the URL of the next step if it exists
+      const nextStepUrl = steps[currentStep + 1]?.url;
+      if (nextStepUrl) {
+        window.open(nextStepUrl, "_blank");
+      }
     } else {
       pauseTimer();
     }
-  };
+  }, [goToNextStep, resetTimer, pauseTimer, steps, currentStep]);
 
   const formatTime = (seconds: number) => {
     const absSeconds = Math.abs(seconds);
