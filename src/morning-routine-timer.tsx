@@ -4,6 +4,49 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Play, Pause, SkipForward } from "lucide-react";
 
+const INITIAL_STEPS: Step[] = [
+  {
+    name: "Read Mnestic",
+    duration: 1,
+    url: "obsidian://open?vault=Chaos&file=Resources%2FMnestic",
+  },
+  { name: "Sunsama init", duration: 2 },
+  {
+    name: "Log sleep stats TT",
+    duration: 3,
+    url: "https://appx.tenacious-tracker.com/tracking",
+  },
+  {
+    name: "Log sleep stats Exist",
+    duration: 3,
+    url: "https://exist.io/review/",
+  },
+  {
+    name: "Look at calendar",
+    duration: 1,
+    url: "https://calendar.google.com/calendar/u/0/r",
+  },
+  {
+    name: "Look at todo list",
+    duration: 2,
+    url: "https://app.todoist.com/app/today",
+  },
+  {
+    name: "Review last day on Intend",
+    duration: 10,
+    url: "https://intend.do/aelerinya/now",
+  },
+  {
+    name: "Set intention for the day on Intend",
+    duration: 4,
+    url: "https://intend.do/aelerinya/today",
+  },
+  {
+    name: "Sunsama finish plan",
+    duration: 5,
+  },
+];
+
 interface Step {
   name: string;
   duration: number;
@@ -60,8 +103,8 @@ const useTimer = (initialTime: number, onTimerEnd: () => void) => {
   };
 };
 
-const useSteps = (initialSteps: Step[]) => {
-  const [steps, setSteps] = useState(initialSteps);
+const useSteps = () => {
+  const steps = INITIAL_STEPS;
   const [currentStep, setCurrentStep] = useState(0);
   const [isRoutineFinished, setIsRoutineFinished] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -222,49 +265,6 @@ const TimerContent = ({
 };
 
 const MorningRoutineTimer = () => {
-  const initialSteps: Step[] = [
-    {
-      name: "Read Mnestic",
-      duration: 1,
-      url: "obsidian://open?vault=Chaos&file=Resources%2FMnestic",
-    },
-    { name: "Sunsama init", duration: 2 },
-    {
-      name: "Log sleep stats TT",
-      duration: 3,
-      url: "https://appx.tenacious-tracker.com/tracking",
-    },
-    {
-      name: "Log sleep stats Exist",
-      duration: 3,
-      url: "https://exist.io/review/",
-    },
-    {
-      name: "Look at calendar",
-      duration: 1,
-      url: "https://calendar.google.com/calendar/u/0/r",
-    },
-    {
-      name: "Look at todo list",
-      duration: 2,
-      url: "https://app.todoist.com/app/today",
-    },
-    {
-      name: "Review last day on Intend",
-      duration: 10,
-      url: "https://intend.do/aelerinya/now",
-    },
-    {
-      name: "Set intention for the day on Intend",
-      duration: 4,
-      url: "https://intend.do/aelerinya/today",
-    },
-    {
-      name: "Sunsama finish plan",
-      duration: 5,
-    },
-  ];
-
   const {
     steps,
     currentStep,
@@ -272,7 +272,7 @@ const MorningRoutineTimer = () => {
     progress,
     goToNextStep,
     getCurrentStepDuration,
-  } = useSteps(initialSteps);
+  } = useSteps();
 
   const { playSound } = useSound();
 
@@ -339,18 +339,14 @@ const MorningRoutineTimer = () => {
               </div>
               {isRoutineFinished ? (
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold mb-4">
-                    Congratulations!
-                  </h2>
+                  <h2 className="text-2xl font-bold mb-4">Congratulations!</h2>
                   <p className="text-lg mb-4">
                     You've completed your morning routine.
                   </p>
                   <div className="space-y-2">
                     <p>
                       Total Time:{" "}
-                      <span className="font-bold">
-                        {formatTime(totalTime)}
-                      </span>
+                      <span className="font-bold">{formatTime(totalTime)}</span>
                     </p>
                     <p className="text-red-300">
                       Overtime:{" "}
