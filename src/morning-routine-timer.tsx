@@ -2,9 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, Play, Pause, SkipForward, Plus, Minus } from "lucide-react";
+import { Clock, Play, Pause, SkipForward } from "lucide-react";
 
 interface Step {
   name: string;
@@ -103,13 +101,6 @@ const useSteps = (initialSteps: Step[]) => {
     return steps[currentStep].duration * 60;
   }, [steps, currentStep]);
 
-  const updateSteps = (newSteps: Step[]) => {
-    setSteps(newSteps);
-    setCurrentStep(0);
-    setIsRoutineFinished(false);
-    setProgress(0);
-  };
-
   return {
     steps,
     currentStep,
@@ -117,7 +108,6 @@ const useSteps = (initialSteps: Step[]) => {
     progress,
     goToNextStep,
     getCurrentStepDuration,
-    updateSteps,
   };
 };
 
@@ -140,97 +130,6 @@ const useSound = () => {
   }, []);
 
   return { playSound };
-};
-
-const RoutineEditor = ({
-  steps,
-  updateSteps,
-}: {
-  steps: Step[];
-  updateSteps: (newSteps: Step[]) => void;
-}) => {
-  const [editedSteps, setEditedSteps] = useState(steps);
-
-  const handleStepChange = (
-    index: number,
-    field: keyof Step,
-    value: string
-  ) => {
-    const newSteps = [...editedSteps];
-    if (field === "name") {
-      newSteps[index].name = value;
-    } else if (field === "duration") {
-      newSteps[index].duration = parseInt(value) || 0;
-    } else if (field === "url") {
-      newSteps[index].url = value;
-    }
-    setEditedSteps(newSteps);
-  };
-
-  const addStep = () => {
-    setEditedSteps([
-      ...editedSteps,
-      { name: "New Step", duration: 5, url: "" },
-    ]);
-  };
-
-  const removeStep = (index: number) => {
-    const newSteps = editedSteps.filter((_, i) => i !== index);
-    setEditedSteps(newSteps);
-  };
-
-  const saveChanges = () => {
-    updateSteps(editedSteps);
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        {editedSteps.map((step, index) => (
-          <div key={index} className="flex items-center space-x-2">
-            <Input
-              value={step.name}
-              onChange={(e) => handleStepChange(index, "name", e.target.value)}
-              className="flex-grow"
-            />
-            <Input
-              type="number"
-              value={step.duration}
-              onChange={(e) =>
-                handleStepChange(index, "duration", e.target.value)
-              }
-              className="w-20"
-            />
-            <Input
-              value={step.url || ""}
-              onChange={(e) => handleStepChange(index, "url", e.target.value)}
-              placeholder="URL (optional)"
-              className="flex-grow"
-            />
-            <Button
-              onClick={() => removeStep(index)}
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              <Minus />
-            </Button>
-          </div>
-        ))}
-        <Button
-          onClick={addStep}
-          className="bg-green-500 hover:bg-green-600 text-white"
-        >
-          <Plus className="mr-2" />
-          Add Step
-        </Button>
-      </div>
-      <Button
-        onClick={saveChanges}
-        className="w-full bg-slate-500 hover:bg-slate-600 text-white"
-      >
-        Save Changes
-      </Button>
-    </div>
-  );
 };
 
 interface TimerContentProps {
@@ -373,7 +272,6 @@ const MorningRoutineTimer = () => {
     progress,
     goToNextStep,
     getCurrentStepDuration,
-    updateSteps,
   } = useSteps(initialSteps);
 
   const { playSound } = useSound();
@@ -420,86 +318,65 @@ const MorningRoutineTimer = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-2xl">
-        <Tabs defaultValue="timer" className="space-y-4">
-          <div className="bg-slate-700 rounded-t-lg shadow-xl overflow-hidden">
-            <Card className="bg-transparent border-none text-white">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">
-                  Customizable Morning Routine Timer
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6 space-y-2">
-                  <div className="h-3 bg-slate-900 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-white transition-all duration-300 ease-in-out"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                  <div className="text-xs text-right text-slate-200">
-                    Progress: {Math.round(progress)}%
+        <div className="bg-slate-700 rounded-lg shadow-xl overflow-hidden">
+          <Card className="bg-transparent border-none text-white">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold">
+                Morning Routine Timer
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-6 space-y-2">
+                <div className="h-3 bg-slate-900 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-white transition-all duration-300 ease-in-out"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <div className="text-xs text-right text-slate-200">
+                  Progress: {Math.round(progress)}%
+                </div>
+              </div>
+              {isRoutineFinished ? (
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold mb-4">
+                    Congratulations!
+                  </h2>
+                  <p className="text-lg mb-4">
+                    You've completed your morning routine.
+                  </p>
+                  <div className="space-y-2">
+                    <p>
+                      Total Time:{" "}
+                      <span className="font-bold">
+                        {formatTime(totalTime)}
+                      </span>
+                    </p>
+                    <p className="text-red-300">
+                      Overtime:{" "}
+                      <span className="font-bold">
+                        {formatTime(totalOvertime)}
+                      </span>
+                    </p>
                   </div>
                 </div>
-                <TabsContent value="timer">
-                  {isRoutineFinished ? (
-                    <div className="text-center">
-                      <h2 className="text-2xl font-bold mb-4">
-                        Congratulations!
-                      </h2>
-                      <p className="text-lg mb-4">
-                        You've completed your morning routine.
-                      </p>
-                      <div className="space-y-2">
-                        <p>
-                          Total Time:{" "}
-                          <span className="font-bold">
-                            {formatTime(totalTime)}
-                          </span>
-                        </p>
-                        <p className="text-red-300">
-                          Overtime:{" "}
-                          <span className="font-bold">
-                            {formatTime(totalOvertime)}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <TimerContent
-                      steps={steps}
-                      currentStep={currentStep}
-                      timeLeft={timeLeft}
-                      isRunning={isRunning}
-                      totalTime={totalTime}
-                      totalOvertime={totalOvertime}
-                      isOvertime={isOvertime}
-                      startTimer={startTimer}
-                      pauseTimer={pauseTimer}
-                      startNextStep={startNextStep}
-                    />
-                  )}
-                </TabsContent>
-                <TabsContent value="editor">
-                  <RoutineEditor steps={steps} updateSteps={updateSteps} />
-                </TabsContent>
-              </CardContent>
-            </Card>
-          </div>
-          <TabsList className="grid w-full grid-cols-2 bg-slate-600 rounded-b-lg">
-            <TabsTrigger
-              value="timer"
-              className="data-[state=active]:bg-slate-700"
-            >
-              Timer
-            </TabsTrigger>
-            <TabsTrigger
-              value="editor"
-              className="data-[state=active]:bg-slate-700"
-            >
-              Edit Routine
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+              ) : (
+                <TimerContent
+                  steps={steps}
+                  currentStep={currentStep}
+                  timeLeft={timeLeft}
+                  isRunning={isRunning}
+                  totalTime={totalTime}
+                  totalOvertime={totalOvertime}
+                  isOvertime={isOvertime}
+                  startTimer={startTimer}
+                  pauseTimer={pauseTimer}
+                  startNextStep={startNextStep}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
