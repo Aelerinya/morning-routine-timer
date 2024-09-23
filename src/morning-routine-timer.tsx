@@ -37,6 +37,10 @@ const INITIAL_STEPS: Step[] = [
     url: "https://intend.do/aelerinya/now",
   },
   {
+    name: "Do one of the rationality techniques in the deck",
+    duration: 3,
+  },
+  {
     name: "Set intention for the day on Intend",
     duration: 4,
     url: "https://intend.do/aelerinya/today",
