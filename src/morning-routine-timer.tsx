@@ -10,7 +10,6 @@ const INITIAL_STEPS: Step[] = [
     duration: 1,
     url: "obsidian://open?vault=Chaos&file=Resources%2FMnestic",
   },
-  { name: "Sunsama init", duration: 2 },
   {
     name: "Log sleep stats TT",
     duration: 3,
@@ -21,6 +20,7 @@ const INITIAL_STEPS: Step[] = [
     duration: 3,
     url: "https://exist.io/review/",
   },
+  { name: "Sunsama init", duration: 4 },
   {
     name: "Look at calendar",
     duration: 1,
@@ -38,7 +38,7 @@ const INITIAL_STEPS: Step[] = [
   },
   {
     name: "Do one of the rationality techniques in the deck",
-    duration: 3,
+    duration: 5,
   },
   {
     name: "Set intention for the day on Intend",
@@ -47,7 +47,7 @@ const INITIAL_STEPS: Step[] = [
   },
   {
     name: "Sunsama finish plan",
-    duration: 5,
+    duration: 3,
   },
 ];
 
