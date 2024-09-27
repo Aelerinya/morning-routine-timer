@@ -11,11 +11,6 @@ const INITIAL_STEPS: Step[] = [
     url: "obsidian://open?vault=Chaos&file=Resources%2FMnestic",
   },
   {
-    name: "Log sleep stats TT",
-    duration: 3,
-    url: "https://appx.tenacious-tracker.com/tracking",
-  },
-  {
     name: "Log sleep stats Exist",
     duration: 3,
     url: "https://exist.io/review/",
