@@ -10,4 +10,5 @@ export default defineConfig({
     },
   },
   base: "/morning-routine-timer/",
+  publicDir: "public",
 });

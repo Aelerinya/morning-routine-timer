@@ -1,56 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Play, Pause, SkipForward } from "lucide-react";
-
-const INITIAL_STEPS: Step[] = [
-  {
-    name: "Read Mnestic",
-    duration: 1,
-    url: "obsidian://open?vault=Chaos&file=Resources%2FMnestic",
-  },
-  {
-    name: "Log sleep stats Exist",
-    duration: 3,
-    url: "https://exist.io/review/",
-  },
-  { name: "Sunsama init", duration: 4 },
-  {
-    name: "Look at calendar",
-    duration: 1,
-    url: "https://calendar.google.com/calendar/u/0/r",
-  },
-  {
-    name: "Look at todo list",
-    duration: 2,
-    url: "https://app.todoist.com/app/today",
-  },
-  {
-    name: "Review last day on Intend",
-    duration: 10,
-    url: "https://intend.do/aelerinya/now",
-  },
-  {
-    name: "Do one of the rationality techniques in the deck",
-    duration: 5,
-  },
-  {
-    name: "Set intention for the day on Intend",
-    duration: 4,
-    url: "https://intend.do/aelerinya/today",
-  },
-  {
-    name: "Sunsama finish plan",
-    duration: 3,
-  },
-];
-
-interface Step {
-  name: string;
-  duration: number;
-  url?: string; // New optional property for the URL
-}
+import { INITIAL_STEPS, Step } from "./steps";
 
 const useTimer = (initialTime: number, onTimerEnd: () => void) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
@@ -154,24 +107,26 @@ const useSteps = () => {
 };
 
 const useSound = () => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const playSound = useCallback(() => {
-    const audioContext = new window.AudioContext();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + 0.01);
-    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.5);
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.5);
+    if (!audioRef.current) {
+      audioRef.current = new Audio("timer_up_music.wav");
+      audioRef.current.loop = true;
+    }
+    audioRef.current
+      .play()
+      .catch((error) => console.error("Error playing sound:", error));
   }, []);
 
-  return { playSound };
+  const stopSound = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, []);
+
+  return { playSound, stopSound };
 };
 
 interface TimerContentProps {
@@ -273,7 +228,7 @@ const MorningRoutineTimer = () => {
     getCurrentStepDuration,
   } = useSteps();
 
-  const { playSound } = useSound();
+  const { playSound, stopSound } = useSound();
 
   const onTimerEnd = useCallback(() => {
     playSound();
@@ -302,7 +257,8 @@ const MorningRoutineTimer = () => {
     } else {
       pauseTimer();
     }
-  }, [goToNextStep, resetTimer, pauseTimer, steps, currentStep]);
+    stopSound();
+  }, [goToNextStep, resetTimer, pauseTimer, steps, currentStep, stopSound]);
 
   const formatTime = (seconds: number) => {
     const absSeconds = Math.abs(seconds);
