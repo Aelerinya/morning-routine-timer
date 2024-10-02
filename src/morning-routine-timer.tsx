@@ -9,7 +9,7 @@ const useTimer = ({
   initialTime,
   onTimerEnd,
   onPause,
-  onResume
+  onResume,
 }: {
   initialTime: number;
   onTimerEnd: () => void;
@@ -293,11 +293,30 @@ const MorningRoutineTimer = () => {
     const absSeconds = Math.abs(seconds);
     const mins = Math.floor(absSeconds / 60);
     const secs = absSeconds % 60;
-    const sign = seconds < 0 ? "-" : "";
-    return `${sign}${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
+
+  useEffect(() => {
+    const updateTitle = () => {
+      if (isRoutineFinished) {
+        document.title = "Routine Finished!";
+      } else {
+        const stepName = steps[currentStep].name;
+        const timeString = formatTime(timeLeft);
+        const overtimePrefix = isOvertime ? "🔥 " : "";
+        document.title = `${overtimePrefix}${timeString} - ${stepName}`;
+      }
+    };
+
+    updateTitle();
+
+    const titleInterval = setInterval(updateTitle, 1000);
+
+    return () => {
+      clearInterval(titleInterval);
+      document.title = "Morning Routine Timer"; // Reset title on unmount
+    };
+  }, [timeLeft, currentStep, steps, isRoutineFinished, isOvertime]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
