@@ -9,6 +9,10 @@ export const INITIAL_STEPS: Step[] = [
     url: "obsidian://open?vault=Chaos&file=Resources%2FMnestic",
   },
   {
+    name: "Look at RingConn",
+    duration: 1,
+  },
+  {
     name: "Log sleep stats Exist",
     duration: 3,
     url: "https://exist.io/review/",
