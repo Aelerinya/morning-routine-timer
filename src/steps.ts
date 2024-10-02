@@ -1,8 +1,8 @@
 export const INITIAL_STEPS: Step[] = [
-  // {
-  //   name: "Test step",
-  //   duration: 0.1,
-  // },
+  {
+    name: "Test step",
+    duration: 0.1,
+  },
   {
     name: "Read Mnestic",
     duration: 1,

@@ -5,7 +5,17 @@ import { Separator } from "@/components/ui/separator";
 import { Clock, Play, Pause, SkipForward } from "lucide-react";
 import { INITIAL_STEPS, Step } from "./steps";
 
-const useTimer = (initialTime: number, onTimerEnd: () => void) => {
+const useTimer = ({
+  initialTime,
+  onTimerEnd,
+  onPause,
+  onResume
+}: {
+  initialTime: number;
+  onTimerEnd: () => void;
+  onPause?: (isOvertime: boolean) => void;
+  onResume?: (isOvertime: boolean) => void;
+}) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
   const [isRunning, setIsRunning] = useState(false);
   const [totalTime, setTotalTime] = useState(0);
@@ -35,8 +45,14 @@ const useTimer = (initialTime: number, onTimerEnd: () => void) => {
     return () => clearInterval(timer);
   }, [isRunning, onTimerEnd]);
 
-  const startTimer = () => setIsRunning(true);
-  const pauseTimer = () => setIsRunning(false);
+  const startTimer = () => {
+    setIsRunning(true);
+    onResume?.(isOvertime);
+  };
+  const pauseTimer = () => {
+    setIsRunning(false);
+    onPause?.(isOvertime);
+  };
   const resetTimer = (newTime: number) => {
     setTimeLeft(newTime);
     setIsOvertime(false);
@@ -243,7 +259,20 @@ const MorningRoutineTimer = () => {
     startTimer,
     pauseTimer,
     resetTimer,
-  } = useTimer(getCurrentStepDuration(), onTimerEnd);
+  } = useTimer({
+    initialTime: getCurrentStepDuration(),
+    onTimerEnd,
+    onPause: (isOvertime) => {
+      if (isOvertime) {
+        stopSound();
+      }
+    },
+    onResume: (isOvertime) => {
+      if (isOvertime) {
+        playSound();
+      }
+    },
+  });
 
   const startNextStep = useCallback(() => {
     const nextStepDuration = goToNextStep();
