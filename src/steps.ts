@@ -1,10 +1,14 @@
 export const INITIAL_STEPS: Step[] = [
-  {
-    name: "Test step",
-    duration: 0.1,
-  },
+  // {
+  //   name: "Test step",
+  //   duration: 0.1,
+  // },
   {
     name: "Read Mnestic",
+    duration: 1,
+  },
+  {
+    name: "Read RAAD method",
     duration: 1,
   },
   {
@@ -24,7 +28,7 @@ export const INITIAL_STEPS: Step[] = [
   },
   {
     name: "Look at todo list",
-    duration: 2,
+    duration: 1,
     url: "https://app.todoist.com/app/today",
   },
   {
@@ -46,6 +50,9 @@ export const INITIAL_STEPS: Step[] = [
     duration: 3,
   },
 ];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const TOTAL_TIME = INITIAL_STEPS.reduce((acc, step) => acc + step.duration, 0);
 
 export interface Step {
   name: string;
